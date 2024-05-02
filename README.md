@@ -1,3 +1,5 @@
+[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab04.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab04)
+
 # Лабораторная работа 4. ИУ8-24 Бачулашвили София
 
 # tp-lab04
