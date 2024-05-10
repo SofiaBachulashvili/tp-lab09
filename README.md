@@ -4,30 +4,19 @@
 
 # tp-lab05
 
-```sh                                                                                                                                         
-    ~                                                                                                              
-❯ export GITHUB_USERNAME=SofiaBachulashvili
-
-    ~                                                                                                              
+```sh                                                                                                                                                           ❯ export GITHUB_USERNAME=SofiaBachulashvili
+                                                                                                            
 ❯ alias gsed=sed
-
-    ~                                                                                                              
+                                                                                                          
 ❯ cd ${GITHUB_USERNAME}/workspace
-
-    ~/SofiaBachulashvili/workspace                                                                                 
+                                                                             
 ❯ pushd .
 ~/SofiaBachulashvili/workspace ~
 
-    ~/SofiaBachulashvili/workspace                                                                                 
-❯ git clone git@github.com:${GITHUB_USERNAME}/tp-lab04.git projects/lab05
-Клонирование в «projects/lab05»...
-ssh: connect to host github.com port 22: Connection refused
-fatal: Не удалось прочитать из внешнего репозитория.
+❯ source scripts/activate
+```
 
-Удостоверьтесь, что у вас есть необходимые права доступа
-и репозиторий существует.
-
-    ~/SofiaBachulashvili/workspace                                                                          21s  
+```sh
 ❯ git clone git@github.com:${GITHUB_USERNAME}/tp-lab04.git projects/lab05
 Клонирование в «projects/lab05»...
 remote: Enumerating objects: 34, done.
@@ -36,20 +25,19 @@ remote: Compressing objects: 100% (24/24), done.
 remote: Total 34 (delta 8), reused 27 (delta 4), pack-reused 0
 Получение объектов: 100% (34/34), 11.37 КиБ | 5.68 МиБ/с, готово.
 Определение изменений: 100% (8/8), готово.
+```
 
-    ~/SofiaBachulashvili/workspace                                                                                 
+```sh
 ❯ cd projects/lab05
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main                                                       
+                                                
 ❯ git remote remove origin
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main                                                       
+                                             
 ❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab05.git
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main                                                       
+```sh
 ❯ mkdir third-party
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main                                                       
+                              
 ❯ git submodule add https://github.com/google/googletest.git third-party/gtest 
 Клонирование в «/home/sofia/SofiaBachulashvili/workspace/projects/lab05/third-party/gtest»...
 remote: Enumerating objects: 27501, done.
@@ -82,23 +70,23 @@ remote: Total 27501 (delta 16), reused 29 (delta 10), pack-reused 27462
 advice.detachedHead в значение false
 
 HEAD сейчас на f8d7d77c Bump version to v1.14 in preparation for release
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main +2 !1                                                 
+```sh                                            
 ❯ git add third-party/gtest  
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main +2                                                    
+                                      
 ❯ git commit -m "added gtest framework"
 [main f11c11d] added gtest framework
  2 files changed, 4 insertions(+)
  create mode 100644 .gitmodules
  create mode 160000 third-party/gtest
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main                                                       
+```sh
 ❯ sed -i '/option(BUILD_EXAMPLES "Build examples" OFF)/a\
 option(BUILD_TESTS "Build tests" OFF)
 ' CMakeLists.txt
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1                                                    
+                                                 
 ❯ cat >> CMakeLists.txt <<EOF
 
 if(BUILD_TESTS)
@@ -110,11 +98,11 @@ if(BUILD_TESTS)
   add_test(NAME check COMMAND check)
 endif()
 EOF
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1                                                    
+```sh                                               
 ❯ mkdir tests
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1                                                    
+                                              
 ❯ cat > tests/test1.cpp <<EOF
 #include <print.hpp>
 
@@ -136,8 +124,9 @@ TEST(Print, InFileStream)
   EXPECT_EQ(result, text);
 }
 EOF
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1 ?1                                                 
+```sh                                              
 ❯ cmake -H. -B_build -DBUILD_TESTS=ON 
 CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
   Compatibility with CMake < 3.5 will be removed from a future version of
@@ -166,8 +155,9 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
 -- Configuring done (2.2s)
 -- Generating done (0.0s)
 -- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1 ?1                                                 
+```sh                                                
 ❯ cmake --build _build 
 [  8%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
 [ 16%] Linking CXX static library libprint.a
@@ -187,8 +177,9 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
 [ 91%] Building CXX object third-party/gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
 [100%] Linking CXX static library ../../../lib/libgmock_main.a
 [100%] Built target gmock_main
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1 ?1                                          23s  
+```sh
 ❯ cmake --build _build --target test 
 Running tests...
 Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
@@ -198,8 +189,9 @@ Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
 100% tests passed, 0 tests failed out of 1
 
 Total Test time (real) =   0.01 sec
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1 ?1                                                 
+```sh                                    
 ❯ _build/check
 Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab05/third-party/gtest/googletest/src/gtest_main.cc
 [==========] Running 1 test from 1 test suite.
@@ -212,8 +204,9 @@ Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab05/thir
 [----------] Global test environment tear-down
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1 ?2                                                 
+```sh                                         
 ❯ cmake --build _build --target test -- ARGS=--verbose
 Running tests...
 UpdateCTestConfiguration  from :/home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build/DartConfiguration.tcl
@@ -247,25 +240,25 @@ test 1
 100% tests passed, 0 tests failed out of 1
 
 Total Test time (real) =   0.01 sec
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !1 ?2                                                 
+```sh                                              
 ❯ sed -i 's/lab04/lab05/g' README.md
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !2 ?2                                                 
+                                        
 ❯ sed -i 's/\(DCMAKE_INSTALL_PREFIX=_install\)/\1 -DBUILD_TESTS=ON/' .travis.yml 
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !3 ?2                                                 
+                                              
 ❯ sed -i '/cmake --build _build --target install/a\
 - cmake --build _build --target test -- ARGS=--verbose
 ' .travis.yml
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main !3 ?2                                                 
+```sh                                            
 ❯ git add .travis.yml
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main +1 !2 ?2                                              
+                                          
 ❯ git add tests
+```
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main +2 !2 ?1                                              
+```sh
 ❯ git add -p
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 96a361e..aa7a323 100644
@@ -308,13 +301,11 @@ index 442ec40..6516588 100644
 -# tp-lab04
 +# tp-lab05
  
- ```sh                                                                                                                                         
+                                                                                                                                 
  ❯ export GITHUB_USERNAME=SofiaBachulashvili 
 (1/4) Индексировать этот блок [y,n,q,a,d,j,J,g,/,s,e,?]? y
 @@ -18,8 +18,8 @@
- ```
- 
- ```sh
+
 -git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab04
 -Клонирование в «projects/lab04»...
 +git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab05
@@ -324,18 +315,16 @@ index 442ec40..6516588 100644
  remote: Compressing objects: 100% (16/16), done.
 (2/4) Индексировать этот блок [y,n,q,a,d,K,j,J,g,/,e,?]? y
 @@ -29,10 +29,10 @@ remote: Total 25 (delta 3), reused 25 (delta 3), pack-reused 0
- ```
- 
- ```sh
+
+
 -❯ cd projects/lab04
 +❯ cd projects/lab05
   git remote remove origin
                                                                                       
 -❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab04.git
 +❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab05.git
- ```
- 
- ```sh
+
+
 (3/4) Индексировать этот блок [y,n,q,a,d,K,j,J,g,/,s,e,?]? y
 @@ -74,6 +74,6 @@ EOF
  Запись объектов: 100% (28/28), 8.71 КиБ | 4.35 МиБ/с, готово.
@@ -348,13 +337,12 @@ index 442ec40..6516588 100644
 (4/4) Индексировать этот блок [y,n,q,a,d,K,g,/,e,?]? y
 
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main +4 ?1                                          13s  
+```sh
 ❯ git commit -m "added tests"
 [main 4ad0762] added tests
  4 files changed, 38 insertions(+), 8 deletions(-)
  create mode 100644 tests/test1.cpp
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main ?1                                                    
+                                               
 ❯ git push origin main
 Перечисление объектов: 45, готово.
 Подсчет объектов: 100% (45/45), готово.
@@ -365,15 +353,4 @@ Total 45 (delta 14), reused 31 (delta 8), pack-reused 0 (from 0)
 remote: Resolving deltas: 100% (14/14), done.
 To github.com:SofiaBachulashvili/tp-lab05.git
  * [new branch]      main -> main
-
-    ~/SofiaBachulashvili/workspace/projects/lab05    main ?1                                                    
-❯ git status                                                                   
-Текущая ветка: main
-Неотслеживаемые файлы:
-  (используйте «git add <файл>...», чтобы добавить в то, что будет включено в коммит)
-	file.txt
-
-индекс пуст, но есть неотслеживаемые файлы
-(используйте «git add», чтобы проиндексировать их)
-
 ```
