@@ -1,8 +1,8 @@
-[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab04.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab04)
+[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab05.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab05)
 
 # Лабораторная работа 4. ИУ8-24 Бачулашвили София
 
-# tp-lab04
+# tp-lab05
 
 ```sh                                                                                                                                         
 ❯ export GITHUB_USERNAME=SofiaBachulashvili 
@@ -18,8 +18,8 @@
 ```
 
 ```sh
-git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab04
-Клонирование в «projects/lab04»...
+git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab05
+Клонирование в «projects/lab05»...
 remote: Enumerating objects: 25, done.
 remote: Counting objects: 100% (25/25), done.
 remote: Compressing objects: 100% (16/16), done.
@@ -29,10 +29,10 @@ remote: Total 25 (delta 3), reused 25 (delta 3), pack-reused 0
 ```
 
 ```sh
-❯ cd projects/lab04
+❯ cd projects/lab05
  git remote remove origin
                                                                                      
-❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab04.git
+❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab05.git
 ```
 
 ```sh
@@ -74,6 +74,6 @@ EOF
 Запись объектов: 100% (28/28), 8.71 КиБ | 4.35 МиБ/с, готово.
 Total 28 (delta 4), reused 24 (delta 3), pack-reused 0 (from 0)
 remote: Resolving deltas: 100% (4/4), done.
-To github.com:SofiaBachulashvili/tp-lab04.git
+To github.com:SofiaBachulashvili/tp-lab05.git
  * [new branch]      main -> main
 ```
