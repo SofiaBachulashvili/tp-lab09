@@ -47,7 +47,6 @@ remote: Total 27501 (delta 16), reused 29 (delta 10), pack-reused 27462
 Получение объектов: 100% (27501/27501), 12.72 МиБ | 5.83 МиБ/с, готово.
 Определение изменений: 100% (20429/20429), готово.
 
-    ~/SofiaBachulashvili/workspace/projects/lab05    main +2                                              5s  
 ❯ cd third-party/gtest && git checkout v1.14.0 && cd ../..
 Примечание: переключение на «v1.14.0».
 
