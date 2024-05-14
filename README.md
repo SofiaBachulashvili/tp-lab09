@@ -1,8 +1,8 @@
-[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab05.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab05)
+[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab06.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab06)
 
 # Лабораторная работа 5. ИУ8-24 Бачулашвили София
 
-# tp-lab05
+# tp-lab06
 
 ```sh                                                                                                                                                           ❯ export GITHUB_USERNAME=SofiaBachulashvili
                                                                                                             
@@ -17,8 +17,8 @@
 ```
 
 ```sh
-❯ git clone git@github.com:${GITHUB_USERNAME}/tp-lab04.git projects/lab05
-Клонирование в «projects/lab05»...
+❯ git clone git@github.com:${GITHUB_USERNAME}/tp-lab04.git projects/lab06
+Клонирование в «projects/lab06»...
 remote: Enumerating objects: 34, done.
 remote: Counting objects: 100% (34/34), done.
 remote: Compressing objects: 100% (24/24), done.
@@ -28,18 +28,18 @@ remote: Total 34 (delta 8), reused 27 (delta 4), pack-reused 0
 ```
 
 ```sh
-❯ cd projects/lab05
+❯ cd projects/lab06
                                                 
 ❯ git remote remove origin
                                              
-❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab05.git
+❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab06.git
 ```
 
 ```sh
 ❯ mkdir third-party
                               
 ❯ git submodule add https://github.com/google/googletest.git third-party/gtest 
-Клонирование в «/home/sofia/SofiaBachulashvili/workspace/projects/lab05/third-party/gtest»...
+Клонирование в «/home/sofia/SofiaBachulashvili/workspace/projects/lab06/third-party/gtest»...
 remote: Enumerating objects: 27501, done.
 remote: Counting objects: 100% (39/39), done.
 remote: Compressing objects: 100% (24/24), done.
@@ -153,7 +153,7 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
 -- Found Threads: TRUE  
 -- Configuring done (2.2s)
 -- Generating done (0.0s)
--- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
+-- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build
 ```
 
 ```sh                                                
@@ -181,7 +181,7 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
 ```sh
 ❯ cmake --build _build --target test 
 Running tests...
-Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
+Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build
     Start 1: check
 1/1 Test #1: check ............................   Passed    0.01 sec
 
@@ -192,7 +192,7 @@ Total Test time (real) =   0.01 sec
 
 ```sh                                    
 ❯ _build/check
-Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab05/third-party/gtest/googletest/src/gtest_main.cc
+Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab06/third-party/gtest/googletest/src/gtest_main.cc
 [==========] Running 1 test from 1 test suite.
 [----------] Global test environment set-up.
 [----------] 1 test from Print
@@ -208,9 +208,9 @@ Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab05/thir
 ```sh                                         
 ❯ cmake --build _build --target test -- ARGS=--verbose
 Running tests...
-UpdateCTestConfiguration  from :/home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build/DartConfiguration.tcl
-UpdateCTestConfiguration  from :/home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build/DartConfiguration.tcl
-Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
+UpdateCTestConfiguration  from :/home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build/DartConfiguration.tcl
+Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build
 Constructing a list of tests
 Done constructing a list of tests
 Updating test list for fixtures
@@ -220,10 +220,10 @@ Checking test dependency graph end
 test 1
     Start 1: check
 
-1: Test command: /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build/check
-1: Working Directory: /home/sofia/SofiaBachulashvili/workspace/projects/lab05/_build
+1: Test command: /home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build/check
+1: Working Directory: /home/sofia/SofiaBachulashvili/workspace/projects/lab06/_build
 1: Test timeout computed to be: 10000000
-1: Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab05/third-party/gtest/googletest/src/gtest_main.cc
+1: Running main() from /home/sofia/SofiaBachulashvili/workspace/projects/lab06/third-party/gtest/googletest/src/gtest_main.cc
 1: [==========] Running 1 test from 1 test suite.
 1: [----------] Global test environment set-up.
 1: [----------] 1 test from Print
@@ -242,7 +242,7 @@ Total Test time (real) =   0.01 sec
 ```
 
 ```sh                                              
-❯ sed -i 's/lab04/lab05/g' README.md
+❯ sed -i 's/lab04/lab06/g' README.md
                                         
 ❯ sed -i 's/\(DCMAKE_INSTALL_PREFIX=_install\)/\1 -DBUILD_TESTS=ON/' .travis.yml 
                                               
@@ -293,12 +293,12 @@ index 442ec40..6516588 100644
 +++ b/README.md
 @@ -1,8 +1,8 @@
 -[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab04.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab04)
-+[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab05.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab05)
++[![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab06.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab06)
  
  # Лабораторная работа 4. ИУ8-24 Бачулашвили София
  
 -# tp-lab04
-+# tp-lab05
++# tp-lab06
  
                                                                                                                                  
  ❯ export GITHUB_USERNAME=SofiaBachulashvili 
@@ -307,8 +307,8 @@ index 442ec40..6516588 100644
 
 -git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab04
 -Клонирование в «projects/lab04»...
-+git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab05
-+Клонирование в «projects/lab05»...
++git clone git@github.com:${GITHUB_USERNAME}/tp-lab03.git projects/lab06
++Клонирование в «projects/lab06»...
  remote: Enumerating objects: 25, done.
  remote: Counting objects: 100% (25/25), done.
  remote: Compressing objects: 100% (16/16), done.
@@ -317,11 +317,11 @@ index 442ec40..6516588 100644
 
 
 -❯ cd projects/lab04
-+❯ cd projects/lab05
++❯ cd projects/lab06
   git remote remove origin
                                                                                       
 -❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab04.git
-+❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab05.git
++❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab06.git
 
 
 (3/4) Индексировать этот блок [y,n,q,a,d,K,j,J,g,/,s,e,?]? y
@@ -330,7 +330,7 @@ index 442ec40..6516588 100644
  Total 28 (delta 4), reused 24 (delta 3), pack-reused 0 (from 0)
  remote: Resolving deltas: 100% (4/4), done.
 -To github.com:SofiaBachulashvili/tp-lab04.git
-+To github.com:SofiaBachulashvili/tp-lab05.git
++To github.com:SofiaBachulashvili/tp-lab06.git
   * [new branch]      main -> main
  ```
 (4/4) Индексировать этот блок [y,n,q,a,d,K,g,/,e,?]? y
@@ -350,6 +350,6 @@ index 442ec40..6516588 100644
 Запись объектов: 100% (45/45), 13.44 КиБ | 4.48 МиБ/с, готово.
 Total 45 (delta 14), reused 31 (delta 8), pack-reused 0 (from 0)
 remote: Resolving deltas: 100% (14/14), done.
-To github.com:SofiaBachulashvili/tp-lab05.git
+To github.com:SofiaBachulashvili/tp-lab06.git
  * [new branch]      main -> main
 ```
