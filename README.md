@@ -1,1186 +1,300 @@
 [![Build Status](https://app.travis-ci.com/SofiaBachulashvili/tp-lab06.svg?token=QmQqzGNVkZy8A7N9cEfZ&branch=master)](https://app.travis-ci.com/SofiaBachulashvili/tp-lab06)
 
-# Лабораторная работа 7. ИУ8-24 Бачулашвили София
-
-## tp-lab07
+# Лабораторная работа 8. ИУ8-24 Бачулашвили София
+## tp-lab08
 ```sh
 ❯ export GITHUB_USERNAME=SofiaBachulashvili
-                                                                                                          
-❯ alias gsed=sed
-                                                                                                          
+
 ❯ cd ${GITHUB_USERNAME}/workspace
-                                                                               
+
 ❯ pushd .
 ~/SofiaBachulashvili/workspace ~
+
+❯ source scripts/activate
 ```
 
 ```sh
-❯ git clone git@github.com:${GITHUB_USERNAME}/tp-lab06.git projects/lab07
-Клонирование в «projects/lab07»...
-remote: Enumerating objects: 73, done.
-remote: Counting objects: 100% (73/73), done.
-remote: Compressing objects: 100% (43/43), done.
-remote: Total 73 (delta 28), reused 59 (delta 22), pack-reused 0
-Получение объектов: 100% (73/73), 41.41 КиБ | 165.00 КиБ/с, готово.
-Определение изменений: 100% (28/28), готово.
-```
+❯ git clone git@github.com:${GITHUB_USERNAME}/tp-lab07.git projects/lab08
+Клонирование в «projects/lab08»...
+remote: Enumerating objects: 93, done.
+remote: Counting objects: 100% (93/93), done.
+remote: Compressing objects: 100% (48/48), done.
+remote: Total 93 (delta 34), reused 88 (delta 32), pack-reused 0
+Получение объектов: 100% (93/93), 57.85 КиБ | 553.00 КиБ/с, готово.
+Определение изменений: 100% (34/34), готово.
 
-```sh                                              
-❯ cd projects/lab07
-                                                    
+❯ cd projects/lab08                                                   
+
+❯ git submodule update --init 
+Подмодуль «tools/polly» (https://github.com/ruslo/polly) зарегистрирован по пути «tools/polly»
+Клонирование в «/home/sofia/SofiaBachulashvili/workspace/projects/lab08/tools/polly»...
+Submodule path 'tools/polly': checked out 'ef7e79c2c297d456f2742fd0b976f555d058d4e0'
+
 ❯ git remote remove origin
-                                                      
-❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab07.git 
 
-
-❯ mkdir -p cmake
-```
-
-```sh                                               
-❯ wget https://raw.githubusercontent.com/cpp-pm/gate/master/cmake/HunterGate.cmake -O cmake/HunterGate.cmake
-cmake/HunterGate.cma 100% [=====================================================================>]    4.81K    --.-KB/s
-                          [Files: 1  Bytes: 4.81K [1.58KB/s] Redirects: 0  Todo: 0  Errors: 0    ]
-```
-
-## Редактируем CMakeLists.txt
-```
-❯ nvim CMakeLists.txt
-
-❯ git rm -rf third-party/gtest 
-rm 'third-party/gtest'
-
-❯ ls    
-ChangeLog.md  CMakeLists.txt     DESCRIPTION  include  README.md  TEST.md  third-party
-cmake         CPackConfig.cmake  examples     LICENSE  sources    tests
-
-❯ ls tests 
-test1.cpp
+❯ git remote add origin git@github.com:${GITHUB_USERNAME}/tp-lab08.git
 ```
 
 ```sh
-❯ cmake -H. -B_builds -DBUILD_TESTS=ON
-CMake Deprecation Warning at CMakeLists.txt:2 (cmake_minimum_required):
-  Compatibility with CMake < 3.5 will be removed from a future version of
-  CMake.
+❯ cat > Dockerfile <<EOF
+FROM ubuntu:22.04
+EOF
 
-  Update the VERSION argument <min> value or use a ...<max> suffix to tell
-  CMake that the project does not need compatibility with older versions.
+❯ cat >> Dockerfile <<EOF
 
+RUN apt update
+RUN apt install -yy build-essential clang gcc make cmake
+EOF
 
--- The C compiler identification is GNU 14.0.1
--- The CXX compiler identification is GNU 14.0.1
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
-CMake Warning at /usr/share/cmake/Modules/CPack.cmake:507 (message):
-  CPack.cmake has already been included!!
-Call Stack (most recent call first):
-  CPackConfig.cmake:24 (include)
-  CMakeLists.txt:48 (include)
+❯ cat >> Dockerfile <<EOF
 
+COPY . print/
+WORKDIR print
+EOF
 
--- Configuring done (1.4s)
--- Generating done (0.0s)
-CMake Warning:
-  Manually-specified variables were not used by the project:
+❯ cat >> Dockerfile <<EOF
 
-    BUILD_TESTS
+RUN cmake -H. -B_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=_install
+RUN cmake --build _build
+RUN cmake --build _build --target install
+EOF
 
+❯ cat >> Dockerfile <<EOF
 
--- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds
-```
+ENV LOG_PATH /home/logs/log.txt
+EOF
 
-```sh
-❯ cat CMakeLists.txt              
+❯ cat >> Dockerfile <<EOF
 
-cmake_minimum_required(VERSION 3.4)
+VOLUME /home/logs
+EOF
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+❯ cat >> Dockerfile <<EOF
 
-option(BUILD_EXAMPLES "Build examples" OFF)
+WORKDIR _install/bin
+EOF
 
-project(print)
-set(PRINT_VERSION_MAJOR 0)
-set(PRINT_VERSION_MINOR 1)
-set(PRINT_VERSION_PATCH 0)
-set(PRINT_VERSION_TWEAK 0)
-set(PRINT_VERSION
-  ${PRINT_VERSION_MAJOR}.${PRINT_VERSION_MINOR}.${PRINT_VERSION_PATCH}.${PRINT_VERSION_TWEAK})
-set(PRINT_VERSION_STRING "v${PRINT_VERSION}")
+❯ cat >> Dockerfile <<EOF
 
-add_library(print STATIC ${CMAKE_CURRENT_SOURCE_DIR}/sources/print.cpp)
-
-target_include_directories(print PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-
-if(BUILD_EXAMPLES)
-  file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cpp")
-  foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
-    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE} NAME_WE)
-    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE})
-    target_link_libraries(${EXAMPLE_NAME} print)
-    install(TARGETS ${EXAMPLE_NAME}
-      RUNTIME DESTINATION bin
-    )
-  endforeach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
-endif()
-
-install(TARGETS print
-    EXPORT print-config
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include)
-install(EXPORT print-config DESTINATION cmake)
-
-include(CPackConfig.cmake)
-
-include(CPackConfig.cmake)
-```
-
-```sh
-❯ nvim CMakeLists.txt                                                                                       
-
-❯ cmake -H. -B_builds -DBUILD_TESTS=ON
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.5 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value or use a ...<max> suffix to tell
-  CMake that the project does not need compatibility with older versions.
-
-
--- [hunter] Initializing Hunter workspace (a20151e4c0740ee7d0f9994476856d813cdead29)
--- [hunter]   https://github.com/cpp-pm/hunter/archive/v0.25.5.tar.gz
--- [hunter]   -> /home/sofia/.hunter/_Base/Download/Hunter/0.25.5/a20151e
--- [hunter] Calculating Toolchain-SHA1
--- [hunter] Calculating Config-SHA1
--- [hunter] HUNTER_ROOT: /home/sofia/.hunter
--- [hunter] [ Hunter-ID: a20151e | Toolchain-ID: 797581c | Config-ID: 4abab25 ]
--- [hunter] GTEST_ROOT: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Install (ver.: 1.14.0)
--- [hunter] Building GTest
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/cache.cmake
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/args.cmake
--- The C compiler identification is GNU 14.0.1
--- The CXX compiler identification is GNU 14.0.1
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Configuring done (0.6s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Build
-[  6%] Creating directories for 'GTest-Release'
-[ 12%] Performing download step (download, verify and extract) for 'GTest-Release'
--- Downloading...
-   dst='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-   timeout='none'
-   inactivity timeout='none'
--- Using src='https://github.com/google/googletest/archive/v1.14.0.tar.gz'
--- [download 0% complete]
--- [download 1% complete]
--- [download 2% complete]
--- [download 3% complete]
--- [download 4% complete]
--- [download 5% complete]
--- [download 6% complete]
--- [download 7% complete]
--- [download 8% complete]
--- [download 13% complete]
--- [download 15% complete]
--- [download 16% complete]
--- [download 21% complete]
--- [download 25% complete]
--- [download 33% complete]
--- [download 34% complete]
--- [download 35% complete]
--- [download 44% complete]
--- [download 45% complete]
--- [download 46% complete]
--- [download 47% complete]
--- [download 48% complete]
--- [download 49% complete]
--- [download 50% complete]
--- [download 51% complete]
--- [download 52% complete]
--- [download 53% complete]
--- [download 54% complete]
--- [download 55% complete]
--- [download 56% complete]
--- [download 57% complete]
--- [download 58% complete]
--- [download 59% complete]
--- [download 60% complete]
--- [download 61% complete]
--- [download 62% complete]
--- [download 63% complete]
--- [download 64% complete]
--- [download 65% complete]
--- [download 66% complete]
--- [download 68% complete]
--- [download 69% complete]
--- [download 70% complete]
--- [download 71% complete]
--- [download 72% complete]
--- [download 73% complete]
--- [download 74% complete]
--- [download 75% complete]
--- [download 76% complete]
--- [download 77% complete]
--- [download 78% complete]
--- [download 79% complete]
--- [download 80% complete]
--- [download 81% complete]
--- [download 82% complete]
--- [download 83% complete]
--- [download 84% complete]
--- [download 85% complete]
--- [download 86% complete]
--- [download 87% complete]
--- [download 88% complete]
--- [download 89% complete]
--- [download 90% complete]
--- [download 91% complete]
--- [download 92% complete]
--- [download 93% complete]
--- [download 94% complete]
--- [download 95% complete]
--- [download 96% complete]
--- [download 97% complete]
--- [download 98% complete]
--- [download 99% complete]
--- [download 100% complete]
--- verifying file...
-       file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
--- Downloading... done
--- extracting...
-     src='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-     dst='/home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Source'
--- extracting... [tar xfz]
--- extracting... [analysis]
--- extracting... [rename]
--- extracting... [clean up]
--- extracting... done
-[ 18%] No update step for 'GTest-Release'
-[ 25%] No patch step for 'GTest-Release'
-[ 31%] Performing configure step for 'GTest-Release'
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/cache.cmake
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/args.cmake
--- The C compiler identification is GNU 14.0.1
--- The CXX compiler identification is GNU 14.0.1
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found Python3: /usr/bin/python3.12 (found version "3.12.2") found components: Interpreter 
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE  
--- Configuring done (1.5s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Build/GTest-Release-prefix/src/GTest-Release-build
-[ 37%] Performing build step for 'GTest-Release'
-[ 12%] Building CXX object googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-[ 25%] Linking CXX static library ../lib/libgtest.a
-[ 25%] Built target gtest
-[ 37%] Building CXX object googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
-[ 50%] Building CXX object googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
-[ 62%] Linking CXX static library ../lib/libgtest_main.a
-[ 62%] Built target gtest_main
-[ 75%] Linking CXX static library ../lib/libgmock.a
-[ 75%] Built target gmock
-[ 87%] Building CXX object googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
-[100%] Linking CXX static library ../lib/libgmock_main.a
-[100%] Built target gmock_main
-[ 43%] Performing install step for 'GTest-Release'
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-cardinalities.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-function-mocker.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-more-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-more-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-nice-strict.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-spec-builders.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-generated-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/gmock-internal-utils.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/gmock-pp.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgmock.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgmock_main.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock_main.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets-release.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfigVersion.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfig.cmake
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-assertion-result.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-death-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-message.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-param-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-spi.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-test-part.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-typed-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest_pred_impl.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest_prod.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-death-test-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-filepath.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-param-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port-arch.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-string.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-type-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgtest.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgtest_main.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest_main.pc
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/args.cmake
-[ 50%] Completed 'GTest-Release'
-[ 50%] Built target GTest-Release
-[ 56%] Creating directories for 'GTest-Debug'
-[ 62%] Performing download step (download, verify and extract) for 'GTest-Debug'
--- verifying file...
-       file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
--- File already exists and hash match (skip download):
-  file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-  SHA1='2b28c2a3a30d86b1759543ef61fac3c4d69f8c4c'
--- extracting...
-     src='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-     dst='/home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Source'
--- extracting... [tar xfz]
--- extracting... [analysis]
--- extracting... [rename]
--- extracting... [clean up]
--- extracting... done
-[ 68%] No update step for 'GTest-Debug'
-[ 75%] No patch step for 'GTest-Debug'
-[ 81%] Performing configure step for 'GTest-Debug'
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/cache.cmake
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/args.cmake
--- The C compiler identification is GNU 14.0.1
--- The CXX compiler identification is GNU 14.0.1
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found Python3: /usr/bin/python3.12 (found version "3.12.2") found components: Interpreter 
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE  
--- Configuring done (1.4s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Build/GTest-Debug-prefix/src/GTest-Debug-build
-[ 87%] Performing build step for 'GTest-Debug'
-[ 12%] Building CXX object googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-[ 25%] Linking CXX static library ../lib/libgtestd.a
-[ 25%] Built target gtest
-[ 37%] Building CXX object googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
-[ 50%] Building CXX object googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
-[ 62%] Linking CXX static library ../lib/libgtest_maind.a
-[ 62%] Built target gtest_main
-[ 75%] Linking CXX static library ../lib/libgmockd.a
-[ 75%] Built target gmock
-[ 87%] Building CXX object googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
-[100%] Linking CXX static library ../lib/libgmock_maind.a
-[100%] Built target gmock_main
-[ 93%] Performing install step for 'GTest-Debug'
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-cardinalities.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-function-mocker.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-more-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-more-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-nice-strict.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock-spec-builders.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/gmock.h
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-generated-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/gmock-internal-utils.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gmock/internal/gmock-pp.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgmockd.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgmock_maind.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock_main.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets-debug.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfigVersion.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfig.cmake
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-assertion-result.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-death-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-message.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-param-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-spi.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-test-part.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest-typed-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest_pred_impl.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/gtest_prod.h
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-death-test-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-filepath.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-param-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port-arch.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-string.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/include/gtest/internal/gtest-type-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgtestd.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/libgtest_maind.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest_main.pc
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest/args.cmake
-[100%] Completed 'GTest-Debug'
-[100%] Built target GTest-Debug
--- [hunter] Build step successful (dir: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Build/GTest)
--- [hunter] Cache saved: /home/sofia/.hunter/_Base/Cache/raw/c53335953e17fad919e1a49dc85c365a85bb96f7.tar.bz2
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE  
--- Configuring done (84.7s)
-CMake Error at CMakeLists.txt:54 (add_executable):
-  Cannot find source file:
-
-    /home/sofia/SofiaBachulashvili/workspace/projects/lab07/demo/main.cpp
-
-  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .mpp .m .M .mm .ixx .cppm
-  .ccm .cxxm .c++m .h .hh .h++ .hm .hpp .hxx .in .txx .f .F .for .f77 .f90
-  .f95 .f03 .hip .ispc
-
-
-CMake Error at CMakeLists.txt:54 (add_executable):
-  No SOURCES given to target: demo
-  
-
-CMake Generate step failed.  Build files cannot be regenerated correctly.
-```
-## Ошибка -> CMakeLists.txt надо отредактировать
-
-```sh
-❯ ls      
-_builds       cmake           CPackConfig.cmake  examples  LICENSE    sources  tests
-ChangeLog.md  CMakeLists.txt  DESCRIPTION        include   README.md  TEST.md  third-party
-
-❯ mkdir demo         
-
-❯ nvim CMakeLists.txt
-```
-
-```sh
-❯ cmake -H. -B_builds -DBUILD_TESTS=ON
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.5 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value or use a ...<max> suffix to tell
-  CMake that the project does not need compatibility with older versions.
-
-
--- [hunter] Calculating Toolchain-SHA1
--- [hunter] Calculating Config-SHA1
--- [hunter] HUNTER_ROOT: /home/sofia/.hunter
--- [hunter] [ Hunter-ID: a20151e | Toolchain-ID: 797581c | Config-ID: 4abab25 ]
--- [hunter] GTEST_ROOT: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Install (ver.: 1.14.0)
--- Configuring done (2.2s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds
-```
-
-```sh
-❯ cmake --build _builds 
-[ 25%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
-[ 50%] Linking CXX static library libprint.a
-[ 50%] Built target print
-[ 75%] Building CXX object CMakeFiles/check.dir/tests/test1.cpp.o
-[100%] Linking CXX executable check
-[100%] Built target check
-
-❯ cmake --build _builds --target test
-Running tests...
-Test project /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds
-    Start 1: check
-1/1 Test #1: check ............................   Passed    0.01 sec
-
-100% tests passed, 0 tests failed out of 1
-
-Total Test time (real) =   0.01 sec
-```
-
-```sh
-❯ ls -la $HOME/.hunter
-итого 0
-drwxr-xr-x. 1 sofia sofia  10 мая 16 18:08 .
-drwx------. 1 sofia sofia 836 мая 16 18:13 ..
-drwxr-xr-x. 1 sofia sofia  52 мая 16 18:09 _Base
-
-❯ mkdir demo 
-mkdir: невозможно создать каталог «demo»: Файл существует
-```
-## тк файл demo есть -> Идем туда и пишем ✍🏻
-
-```sh
-❯ ls demo            
-
-❯ cat > demo/main.cpp <<EOF
-#include <print.hpp>
-
-#include <cstdlib>
-
-int main(int argc, char* argv[])
-{
-  const char* log_path = std::getenv("LOG_PATH");
-  if (log_path == nullptr)
-  {
-    std::cerr << "undefined environment variable: LOG_PATH" << std::endl;
-    return 1;
-  }
-  std::string text;
-  while (std::cin >> text)
-  {
-    std::ofstream out{log_path, std::ios_base::app};
-    print(text, out);
-    out << std::endl;
-  }
-}
+ENTRYPOINT ./demo
 EOF
 ```
 
 ```sh
-❯ nvim CMakeLists.txt
+❯ sudo docker info 
+[sudo] пароль для sofia:
+Client: Docker Engine - Community
+ Version:    26.1.2
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.14.0
+    Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.27.0
+    Path:     /usr/libexec/docker/cli-plugins/docker-compose
 
-❯ mkdir tools
-
-❯ git submodule add https://github.com/ruslo/polly tools/polly
-Клонирование в «/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly»...
-remote: Enumerating objects: 6578, done.
-remote: Counting objects: 100% (32/32), done.
-remote: Compressing objects: 100% (15/15), done.
-remote: Total 6578 (delta 21), reused 20 (delta 17), pack-reused 6546
-Получение объектов: 100% (6578/6578), 1.68 МиБ | 273.00 КиБ/с, готово.
-Определение изменений: 100% (4551/4551), готово.
-
-```sh
-❯ tools/polly/bin/polly.py --test
-Python version: 3.12
-Build dir: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default
-Execute command: [
-  `which`
-  `cmake`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "which" "cmake"
-
-/usr/bin/cmake
-Execute command: [
-  `cmake`
-  `--version`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "--version"
-
-cmake version 3.28.2
-
-CMake suite maintained and supported by Kitware (kitware.com/cmake).
-Execute command: [
-  `cmake`
-  `-H.`
-  `-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default`
-  `-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "-H." "-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default" "-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake"
-
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.5 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value or use a ...<max> suffix to tell
-  CMake that the project does not need compatibility with older versions.
-
-
--- [polly] Used toolchain: Default
--- The C compiler identification is GNU 14.0.1
--- The CXX compiler identification is GNU 14.0.1
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- [hunter] Calculating Toolchain-SHA1
--- [hunter] Calculating Config-SHA1
--- [hunter] HUNTER_ROOT: /home/sofia/.hunter
--- [hunter] [ Hunter-ID: a20151e | Toolchain-ID: 797581c | Config-ID: 4abab25 ]
--- [hunter] GTEST_ROOT: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Install (ver.: 1.14.0)
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
-CMake Error at CMakeLists.txt:54 (h90add_executable):
-  Unknown CMake command "h90add_executable".
-
-
--- Configuring incomplete, errors occurred!
-Command exit with status "1": [/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "-H." "-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default" "-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake"
-
-Log: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_logs/polly/default/log.txt
-*** FAILED ***
+Server:
+ Containers: 0
+  Running: 0
+  Paused: 0
+  Stopped: 0
+ Images: 0
+ Server Version: 26.1.2
+ Storage Driver: overlay2
+  Backing Filesystem: btrfs
+  Supports d_type: true
+  Using metacopy: false
+  Native Overlay Diff: true
+  userxattr: false
+ Logging Driver: json-file
+ Cgroup Driver: systemd
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ Swarm: inactive
+ Runtimes: runc io.containerd.runc.v2
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: e377cd56a71523140ca6ae87e30244719194a521
+ runc version: v1.1.12-0-g51d5e94
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.8.7-300.fc40.x86_64
+ Operating System: Fedora Linux 40 (Workstation Edition)
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 12
+ Total Memory: 3.783GiB
+ Name: 192.168.227.129
+ ID: 5f7ff6f5-a5a2-4378-a669-850fc6b6bad9
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Experimental: false
+ Insecure Registries:
+  127.0.0.0/8
+ Live Restore Enabled: false
 ```
-## Опять лишнее в CMakeLists.txt
-## Сейчас уберем
 
+# Docker был скачен и настроен заранее, поэтому такой скудный вывод у этой команды)))
 ```sh
-❯ nvim CMakeLists.txt                                         
-```
-## Ох polly
-```sh
-❯ tools/polly/bin/polly.py --test
-Python version: 3.12
-Build dir: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default
-Execute command: [
-  `which`
-  `cmake`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "which" "cmake"
-
-/usr/bin/cmake
-Execute command: [
-  `cmake`
-  `--version`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "--version"
-
-cmake version 3.28.2
-
-CMake suite maintained and supported by Kitware (kitware.com/cmake).
-Execute command: [
-  `cmake`
-  `-H.`
-  `-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default`
-  `-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "-H." "-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default" "-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake"
-
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.5 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value or use a ...<max> suffix to tell
-  CMake that the project does not need compatibility with older versions.
-
-
--- [polly] Used toolchain: Default
--- The C compiler identification is GNU 14.0.1
--- The CXX compiler identification is GNU 14.0.1
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- [hunter] Calculating Toolchain-SHA1
--- [hunter] Calculating Config-SHA1
--- [hunter] HUNTER_ROOT: /home/sofia/.hunter
--- [hunter] [ Hunter-ID: a20151e | Toolchain-ID: 797581c | Config-ID: 4abab25 ]
--- [hunter] GTEST_ROOT: /home/sofia/.hunter/_Base/a20151e/797581c/4abab25/Install (ver.: 1.14.0)
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done (3.4s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default
-Execute command: [
-  `cmake`
-  `--build`
-  `/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default`
-  `--`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "--build" "/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default" "--"
-
-[ 25%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
-[ 50%] Linking CXX static library libprint.a
-[ 50%] Built target print
-[ 75%] Building CXX object CMakeFiles/demo.dir/demo/main.cpp.o
-[100%] Linking CXX executable demo
-[100%] Built target demo
-Run tests
-Execute command: [
-  `ctest`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default]> "ctest"
-
-*********************************
-No test configuration file found!
-*********************************
-Usage
-
-  ctest [options]
-
--
-Log saved: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_logs/polly/default/log.txt
--
-Generate: 0:00:04.433655s
-Build: 0:00:02.646162s
-Test: 0:00:00.027277s
--
-Total: 0:00:07.107517s
--
-SUCCESS
-```
-## Не работает insert 😢😭
-```sh
-❯ tools/polly/bin/polly.py --install 
-Python version: 3.12
-Build dir: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default
-Execute command: [
-  `which`
-  `cmake`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "which" "cmake"
-
-/usr/bin/cmake
-Execute command: [
-  `cmake`
-  `--version`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "--version"
-
-cmake version 3.28.2
-
-CMake suite maintained and supported by Kitware (kitware.com/cmake).
-
-== WARNING ==
-
-Looks like cmake arguments changed. You have two options to fix it:
-  * Remove build directory completely by adding '--clear' (works 100%)
-  * Run configure again by adding '--reconfig' (you must understand how CMake cache variables works/updated)
-
-- "cmake" "-H." "-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default" "-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake"
-+ "cmake" "-H." "-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/default" "-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/default.cmake" "-DCMAKE_INSTALL_PREFIX=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_install/default"
-?                                                                                                                                                                                                     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+❯ sudo docker build -t logger .
+[+] Building 214.7s (14/14) FINISHED                                                                     docker:default
+ => [internal] load build definition from Dockerfile                                                               0.1s
+ => => transferring dockerfile: 461B                                                                               0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:22.04                                                    3.8s
+ => [internal] load .dockerignore                                                                                  0.1s
+ => => transferring context: 2B                                                                                    0.0s
+ => [1/9] FROM docker.io/library/ubuntu:22.04@sha256:a6d2b38300ce017add71440577d5b0a90460d0e57fd7aec21dd0d1b0761  11.2s
+ => => resolve docker.io/library/ubuntu:22.04@sha256:a6d2b38300ce017add71440577d5b0a90460d0e57fd7aec21dd0d1b0761b  0.0s
+ => => sha256:a8b1c5f80c2d2a757adc963e3fe2dad0b4d229f83df3349fbb70e4d12dd48822 29.53MB / 29.53MB                   7.3s
+ => => sha256:a6d2b38300ce017add71440577d5b0a90460d0e57fd7aec21dd0d1b0761bbfb2 1.13kB / 1.13kB                     0.0s
+ => => sha256:2af372c1e2645779643284c7dc38775e3dbbc417b2d784a27c5a9eb784014fb8 424B / 424B                         0.0s
+ => => sha256:52882761a72a60649edff9a2478835325d084fb640ea32a975e29e12a012025f 2.30kB / 2.30kB                     0.0s
+ => => extracting sha256:a8b1c5f80c2d2a757adc963e3fe2dad0b4d229f83df3349fbb70e4d12dd48822                          3.3s
+ => [internal] load build context                                                                                  0.3s
+ => => transferring context: 3.73MB                                                                                0.3s
+ => [2/9] RUN apt update                                                                                          31.7s
+ => [3/9] RUN apt install -yy build-essential clang gcc make cmake                                                76.9s 
+ => [4/9] COPY . print/                                                                                            0.7s 
+ => [5/9] WORKDIR print                                                                                            0.1s 
+ => [6/9] RUN cmake -H. -B_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=_install                       75.3s 
+ => [7/9] RUN cmake --build _build                                                                                 2.5s 
+ => [8/9] RUN cmake --build _build --target install                                                                0.9s 
+ => [9/9] WORKDIR _install/bin                                                                                     0.1s 
+ => exporting to image                                                                                            11.2s 
+ => => exporting layers                                                                                           11.2s 
+ => => writing image sha256:9653a2a1e9cc19df51ff0bd2dba13307c552f8e3de76c4f5d543dd3892aa5dab                       0.0s 
+ => => naming to docker.io/library/logger               
 ```
 
 ```sh
-❯ tools/polly/bin/polly.py --toolchain clang-cxx14
-Python version: 3.12
-Build dir: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/clang-cxx14
-Execute command: [
-  `which`
-  `cmake`
-]
+❯ sudo docker images 
+REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+logger       latest    9653a2a1e9cc   5 minutes ago   1.23GB
 
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "which" "cmake"
-
-/usr/bin/cmake
-Execute command: [
-  `cmake`
-  `--version`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "--version"
-
-cmake version 3.28.2
-
-CMake suite maintained and supported by Kitware (kitware.com/cmake).
-Execute command: [
-  `cmake`
-  `-H.`
-  `-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/clang-cxx14`
-  `-GUnix Makefiles`
-  `-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/clang-cxx14.cmake`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "-H." "-B/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/clang-cxx14" "-GUnix Makefiles" "-DCMAKE_TOOLCHAIN_FILE=/home/sofia/SofiaBachulashvili/workspace/projects/lab07/tools/polly/clang-cxx14.cmake"
-
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.5 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value or use a ...<max> suffix to tell
-  CMake that the project does not need compatibility with older versions.
-
-
--- [polly] Used toolchain: clang / c++14 support
--- The C compiler identification is Clang 18.1.1
--- The CXX compiler identification is Clang 18.1.1
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/clang - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/clang++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- [hunter] Calculating Toolchain-SHA1
--- [hunter] Calculating Config-SHA1
--- [hunter] HUNTER_ROOT: /home/sofia/.hunter
--- [hunter] [ Hunter-ID: a20151e | Toolchain-ID: 9f630b4 | Config-ID: 4abab25 ]
--- [hunter] GTEST_ROOT: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Install (ver.: 1.14.0)
--- [hunter] Building GTest
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/cache.cmake
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/args.cmake
--- [polly] Used toolchain: clang / c++14 support
--- The C compiler identification is Clang 18.1.1
--- The CXX compiler identification is Clang 18.1.1
--- Check for working C compiler: /usr/bin/clang - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/clang++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Configuring done (0.6s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Build
-[  6%] Creating directories for 'GTest-Release'
-[ 12%] Performing download step (download, verify and extract) for 'GTest-Release'
--- verifying file...
-       file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
--- File already exists and hash match (skip download):
-  file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-  SHA1='2b28c2a3a30d86b1759543ef61fac3c4d69f8c4c'
--- extracting...
-     src='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-     dst='/home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Source'
--- extracting... [tar xfz]
--- extracting... [analysis]
--- extracting... [rename]
--- extracting... [clean up]
--- extracting... done
-[ 18%] No update step for 'GTest-Release'
-[ 25%] No patch step for 'GTest-Release'
-[ 31%] Performing configure step for 'GTest-Release'
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/cache.cmake
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/args.cmake
--- [polly] Used toolchain: clang / c++14 support
--- The C compiler identification is Clang 18.1.1
--- The CXX compiler identification is Clang 18.1.1
--- Check for working C compiler: /usr/bin/clang - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/clang++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found Python3: /usr/bin/python3.12 (found version "3.12.2") found components: Interpreter
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done (1.5s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Build/GTest-Release-prefix/src/GTest-Release-build
-[ 37%] Performing build step for 'GTest-Release'
-[ 12%] Building CXX object googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-[ 25%] Linking CXX static library ../lib/libgtest.a
-[ 25%] Built target gtest
-[ 50%] Building CXX object googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
-[ 50%] Building CXX object googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
-[ 62%] Linking CXX static library ../lib/libgtest_main.a
-[ 62%] Built target gtest_main
-[ 75%] Linking CXX static library ../lib/libgmock.a
-[ 75%] Built target gmock
-[ 87%] Building CXX object googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
-[100%] Linking CXX static library ../lib/libgmock_main.a
-[100%] Built target gmock_main
-[ 43%] Performing install step for 'GTest-Release'
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-cardinalities.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-function-mocker.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-more-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-more-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-nice-strict.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-spec-builders.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-generated-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/gmock-internal-utils.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/gmock-pp.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgmock.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgmock_main.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock_main.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets-release.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfigVersion.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfig.cmake
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-assertion-result.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-death-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-message.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-param-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-spi.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-test-part.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-typed-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest_pred_impl.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest_prod.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-death-test-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-filepath.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-param-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port-arch.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-string.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-type-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgtest.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgtest_main.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest_main.pc
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/args.cmake
-[ 50%] Completed 'GTest-Release'
-[ 50%] Built target GTest-Release
-[ 56%] Creating directories for 'GTest-Debug'
-[ 62%] Performing download step (download, verify and extract) for 'GTest-Debug'
--- verifying file...
-       file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
--- File already exists and hash match (skip download):
-  file='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-  SHA1='2b28c2a3a30d86b1759543ef61fac3c4d69f8c4c'
--- extracting...
-     src='/home/sofia/.hunter/_Base/Download/GTest/1.14.0/2b28c2a/v1.14.0.tar.gz'
-     dst='/home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Source'
--- extracting... [tar xfz]
--- extracting... [analysis]
--- extracting... [rename]
--- extracting... [clean up]
--- extracting... done
-[ 68%] No update step for 'GTest-Debug'
-[ 75%] No patch step for 'GTest-Debug'
-[ 81%] Performing configure step for 'GTest-Debug'
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/cache.cmake
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/args.cmake
--- [polly] Used toolchain: clang / c++14 support
--- The C compiler identification is Clang 18.1.1
--- The CXX compiler identification is Clang 18.1.1
--- Check for working C compiler: /usr/bin/clang - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/clang++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found Python3: /usr/bin/python3.12 (found version "3.12.2") found components: Interpreter
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done (1.5s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Build/GTest-Debug-prefix/src/GTest-Debug-build
-[ 87%] Performing build step for 'GTest-Debug'
-[ 12%] Building CXX object googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-[ 25%] Linking CXX static library ../lib/libgtestd.a
-[ 25%] Built target gtest
-[ 37%] Building CXX object googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
-[ 50%] Building CXX object googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
-[ 62%] Linking CXX static library ../lib/libgtest_maind.a
-[ 62%] Built target gtest_main
-[ 75%] Linking CXX static library ../lib/libgmockd.a
-[ 75%] Built target gmock
-[ 87%] Building CXX object googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
-[100%] Linking CXX static library ../lib/libgmock_maind.a
-[100%] Built target gmock_main
-[ 93%] Performing install step for 'GTest-Debug'
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-cardinalities.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-function-mocker.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-more-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-more-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-nice-strict.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock-spec-builders.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/gmock.h
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-generated-actions.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/custom/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/gmock-internal-utils.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/gmock-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gmock/internal/gmock-pp.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgmockd.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgmock_maind.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gmock_main.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestTargets-debug.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfigVersion.cmake
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/cmake/GTest/GTestConfig.cmake
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-assertion-result.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-death-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-matchers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-message.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-param-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-spi.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-test-part.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest-typed-test.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest_pred_impl.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/gtest_prod.h
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal
--- Up-to-date: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/README.md
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest-printers.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/custom/gtest.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-death-test-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-filepath.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-internal.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-param-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port-arch.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-port.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-string.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/include/gtest/internal/gtest-type-util.h
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgtestd.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/libgtest_maind.a
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest.pc
--- Installing: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/Install/lib64/pkgconfig/gtest_main.pc
-loading initial cache file /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest/args.cmake
-[100%] Completed 'GTest-Debug'
-[100%] Built target GTest-Debug
--- [hunter] Build step successful (dir: /home/sofia/.hunter/_Base/a20151e/9f630b4/4abab25/Build/GTest)
--- [hunter] Cache saved: /home/sofia/.hunter/_Base/Cache/raw/fe4db8820e8515f2920760605f5d8a0d05d9ced8.tar.bz2
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done (55.5s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/clang-cxx14
-Execute command: [
-  `cmake`
-  `--build`
-  `/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/clang-cxx14`
-  `--`
-]
-
-[/home/sofia/SofiaBachulashvili/workspace/projects/lab07]> "cmake" "--build" "/home/sofia/SofiaBachulashvili/workspace/projects/lab07/_builds/clang-cxx14" "--"
-
-[ 25%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
-[ 50%] Linking CXX static library libprint.a
-[ 50%] Built target print
-[ 75%] Building CXX object CMakeFiles/demo.dir/demo/main.cpp.o
-[100%] Linking CXX executable demo
-[100%] Built target demo
--
-Log saved: /home/sofia/SofiaBachulashvili/workspace/projects/lab07/_logs/polly/clang-cxx14/log.txt
--
-Generate: 0:00:56.526681s
-Build: 0:00:02.848324s
--
-Total: 0:00:59.375408s
--
-SUCCESS
+❯ sudo docker run -it -v "$(pwd)/logs/:/home/logs/" logger 
+text1
+text2
+text3
+^C%  
 ```
 
 ```sh
-❯ git add .                                                            
+sudo docker inspect logger
+[
+    {
+        "Id": "sha256:9653a2a1e9cc19df51ff0bd2dba13307c552f8e3de76c4f5d543dd3892aa5dab",
+        "RepoTags": [
+            "logger:latest"
+        ],
+        "RepoDigests": [],
+        "Parent": "",
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2024-05-17T22:34:26.60604484+03:00",
+        "DockerVersion": "",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LOG_PATH=/home/logs/log.txt"
+            ],
+            "Cmd": null,
+            "Image": "",
+            "Volumes": {
+                "/home/logs": {}
+            },
+            "WorkingDir": "/print/_install/bin",
+            "Entrypoint": [
+                "/bin/sh",
+                "-c",
+                "./demo"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "org.opencontainers.image.ref.name": "ubuntu",
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 1234307530,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/vhawc56j4w5zz2ow8pva1lo5h/diff:/var/lib/docker/overlay2/s79ydpuzk358dfep6tvdwcbfq/diff:/var/lib/docker/overlay2/e7aer8blymmc25hvxtegues1c/diff:/var/lib/docker/overlay2/ricm4q7u76hggbthgpz4eygn5/diff:/var/lib/docker/overlay2/j70d9dxhjmk0mj8ibd7r86eye/diff:/var/lib/docker/overlay2/zl1fwbht067yer2edlp6ts2kv/diff:/var/lib/docker/overlay2/bhojzlpmk720u5vykybkrsvcb/diff:/var/lib/docker/overlay2/0c87d932a038ccfa4d27a56ba34b86fa7e770b72cc33689dd803f559b1ab17b2/diff",
+                "MergedDir": "/var/lib/docker/overlay2/u2wro0orbbrunm7jy8zrh86x6/merged",
+                "UpperDir": "/var/lib/docker/overlay2/u2wro0orbbrunm7jy8zrh86x6/diff",
+                "WorkDir": "/var/lib/docker/overlay2/u2wro0orbbrunm7jy8zrh86x6/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:629ca62fb7c791374ce57626d6b8b62c76378be091a0daf1a60d32700b49add7",
+                "sha256:fbcc3de4b98dda3de0c52c6926a0eed34c5a6a313fe83bcb98131385f6bece45",
+                "sha256:b068f4fd9690c630568b72a8544a3b78a70730373c3bc6ca5c5a140462f6eb6f",
+                "sha256:ead7383a1effd9ad505b75723157de603fde59f0185f1d721e2aa838c41da7b9",
+                "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+                "sha256:80095eba055ae3309bc3974b048a1b306ccfb643ce0ebbc96e1d9a05ac2a8d71",
+                "sha256:5ae95ee46d574c028642ebc6582d32867a5bc44cbe5ab0999b2429fad27ae272",
+                "sha256:47675de98a882f300486de3f2b670f467ff9a72bc743f2ae8c1eb22c949545d9",
+                "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2024-05-17T22:34:37.832290524+03:00"
+        }
+    }
+]
+```
 
-❯ git commit -m "Added and configured Hunter"                            
-[main 57f9ef3] Added and configured Hunter
- 10 files changed, 1045 insertions(+), 6 deletions(-)
- create mode 100644 _logs/polly/clang-cxx14/log.txt
- create mode 100644 _logs/polly/default/log-0.txt
- create mode 100644 _logs/polly/default/log-1.txt
- create mode 100644 _logs/polly/default/log.txt
- create mode 100644 cmake/HunterGate.cmake
- create mode 100644 demo/main.cpp
- delete mode 160000 third-party/gtest
- create mode 160000 tools/polly
-                                                    
-❯ git push origin main 
-Перечисление объектов: 90, готово.
-Подсчет объектов: 100% (90/90), готово.
+```sh
+❯ cat logs/log.txt 
+text1
+text2
+text3
+```
+
+```sh
+ sed -i 's/lab07/lab08/g' README.md 
+```
+
+```sh
+❯ nvim .travis.yml
+
+❯ git add Dockerfile 
+
+❯ git add .travis.yml 
+
+❯ git commit -m "adding Dockerfile" 
+[main e769d73] adding Dockerfile
+ 2 files changed, 23 insertions(+), 14 deletions(-)
+ create mode 100644 Dockerfile
+
+❯ git push origin main
+Перечисление объектов: 97, готово.
+Подсчет объектов: 100% (97/97), готово.
 При сжатии изменений используется до 12 потоков
-Сжатие объектов: 100% (49/49), готово.
-Запись объектов: 100% (90/90), 50.52 КиБ | 3.61 МиБ/с, готово.
-Total 90 (delta 32), reused 71 (delta 28), pack-reused 0 (from 0)
-remote: Resolving deltas: 100% (32/32), done.
-To github.com:SofiaBachulashvili/tp-lab07.git
+Сжатие объектов: 100% (50/50), готово.
+Запись объектов: 100% (97/97), 58.42 КиБ | 14.60 МиБ/с, готово.
+Total 97 (delta 35), reused 92 (delta 34), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (35/35), done.
+To github.com:SofiaBachulashvili/tp-lab08.git
  * [new branch]      main -> main
 ```
